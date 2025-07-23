@@ -15,3 +15,19 @@ data = json.load(sys.stdin)
 
 #This is specific to you module, so you need to change it accordingly.
 #agent.dump_env()
+SECRET_KEY = data.get("SECRET_KEY", "django-insecure-RMLYThim9NybWgXiUGat32Aa0Qbgqscf4NPDQuZO2glcZPOiXn") 
+CREATE_SUPERUSER = data.get("CREATE_SUPERUSER", "admin:admin") 
+PORT = data.get("PORT", "8000") 
+DATABASE_URL = data.get("DATABASE_URL", "mysql://root:change_your_passwords_for_real_usage@mysql:3306/bugsink") 
+BEHIND_HTTPS_PROXY = data.get("BEHIND_HTTPS_PROXY", "false") 
+BASE_URL = data.get("BASE_URL", "http://localhost:8000") 
+ 
+web = { 
+ "SECRET_KEY" : SECRET_KEY ,
+ "CREATE_SUPERUSER" : CREATE_SUPERUSER ,
+ "PORT" : PORT ,
+ "DATABASE_URL" : DATABASE_URL ,
+ "BEHIND_HTTPS_PROXY" : BEHIND_HTTPS_PROXY ,
+ "BASE_URL" : BASE_URL ,
+} 
+agent.write_envfile("web.env", web) 
