@@ -19,3 +19,13 @@ podman exec mariadb-app mysqldump \
         --single-transaction \
         --quick \
         --add-drop-table  > bugsink.sql
+
+		podman exec mysql-app mysqldump \
+        --databases mysql \
+        --default-character-set=utf8mb4 \
+        --skip-dump-date \
+        --ignore-table=mysql.event \
+        --single-transaction \
+        --quick \
+        --add-drop-table  > mysql.sql
+		
