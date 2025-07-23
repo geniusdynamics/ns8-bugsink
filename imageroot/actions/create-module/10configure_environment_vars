@@ -26,3 +26,11 @@ def generate_random_password(length):
 
 # just before starting systemd unit
 # agent.dump_env()
+MYSQL_ROOT_PASSWORD = data.get("MYSQL_ROOT_PASSWORD", "change_your_passwords_for_real_usage") 
+MYSQL_DATABASE = data.get("MYSQL_DATABASE", "bugsink") 
+ 
+mysql = { 
+ "MYSQL_ROOT_PASSWORD" : MYSQL_ROOT_PASSWORD ,
+ "MYSQL_DATABASE" : MYSQL_DATABASE ,
+} 
+agent.write_envfile("mysql.env", mysql) 
