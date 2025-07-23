@@ -1,0 +1,30 @@
+#
+# Copyright (C) 2022 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+[Unit]
+Description=Podman  mysql-app.service
+BindsTo=bugsink.service
+After=bugsink.service
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+EnvironmentFile=%S/state/environment
+EnvironmentFile=-%S/state/smarthost.env
+WorkingDirectory=%S/state
+Restart=always
+TimeoutStopSec=70
+ExecStartPre=/bin/mkdir -p tmp
+ExecStartPre=/bin/rm -f %t/mysql-app.pid %t/mysql-app.ctr-id
+ExecStartPre=-runagent discover-smarthost
+ExecStart=/usr/bin/podman run --conmon-pidfile %t/mysql-app.pid  --cidfile %t/mysql-app.ctr-id --cgroups=no-conmon  --pod-id-file %t/bugsink.pod-id --replace -d --name  mysql-app  --volume my-datavolume:/var/lib/mysql:Z   --env-file mysql.env  ${MYSQL_IMAGE}  
+ExecStop=/usr/bin/podman stop --ignore --cidfile %t/mysql-app.ctr-id -t 10
+ExecReload=/usr/bin/podman kill -s HUP mysql-app
+SyslogIdentifier=%u
+ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/mysql-app.ctr-id
+PIDFile=%t/mysql-app.pid
+Type=forking
+
+[Install]
+WantedBy=default.target
