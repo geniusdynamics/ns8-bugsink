@@ -18,7 +18,7 @@ TimeoutStopSec=70
 ExecStartPre=/bin/mkdir -p tmp
 ExecStartPre=/bin/rm -f %t/web-app.pid %t/web-app.ctr-id
 ExecStartPre=-runagent discover-smarthost
-ExecStart=/usr/bin/podman run --conmon-pidfile %t/web-app.pid  --cidfile %t/web-app.ctr-id --cgroups=no-conmon  --pod-id-file %t/bugsink.pod-id --replace -d --name  web-app     --env-file web.env  ${BUGSINK_IMAGE}  
+ExecStart=/usr/bin/podman run --conmon-pidfile %t/web-app.pid  --cidfile %t/web-app.ctr-id --cgroups=no-conmon  --pod-id-file %t/bugsink.pod-id --replace -d --name  web-app --env-file web.env --env-file bugsink_db.env ${BUGSINK_IMAGE}  
 ExecStop=/usr/bin/podman stop --ignore --cidfile %t/web-app.ctr-id -t 10
 ExecReload=/usr/bin/podman kill -s HUP web-app
 SyslogIdentifier=%u
