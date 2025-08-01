@@ -7,6 +7,7 @@
 
 import json
 import sys
+from warnings import filters
 import agent
 import os
 
@@ -26,11 +27,20 @@ def generate_random_password(length):
 
 # just before starting systemd unit
 # agent.dump_env()
-MYSQL_ROOT_PASSWORD = data.get("MYSQL_ROOT_PASSWORD", "change_your_passwords_for_real_usage") 
-MYSQL_DATABASE = data.get("MYSQL_DATABASE", "bugsink") 
- 
-mysql = { 
- "MYSQL_ROOT_PASSWORD" : MYSQL_ROOT_PASSWORD ,
- "MYSQL_DATABASE" : MYSQL_DATABASE ,
-} 
-agent.write_envfile("mysql.env", mysql) 
+MYSQL_ROOT_PASSWORD = generate_random_password(16)
+MYSQL_DATABASE = data.get("MYSQL_DATABASE", "bugsink")
+
+mysql = {
+    "MYSQL_ROOT_PASSWORD": MYSQL_ROOT_PASSWORD,
+    "MYSQL_DATABASE": MYSQL_DATABASE,
+}
+agent.write_envfile("mysql.env", mysql)
+
+SECRET_KEY = generate_random_password(64)
+DATABASE_URL = f"mysql://root:{MYSQL_ROOT_PASSWORD}@mysql-app:3306/bugsink"
+
+bugsink = {
+    "DATABASE_URL": DATABASE_URL,
+    "SECRET_KEY": SECRET_KEY,
+}
+agent.write_envfile("bugsink_db.env", bugsink)
