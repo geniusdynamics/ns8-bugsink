@@ -18,7 +18,7 @@ TimeoutStopSec=70
 ExecStartPre=/bin/mkdir -p tmp
 ExecStartPre=/bin/rm -f %t/mysql-app.pid %t/mysql-app.ctr-id
 ExecStartPre=-runagent discover-smarthost
-ExecStart=/usr/bin/podman run --conmon-pidfile %t/mysql-app.pid  --cidfile %t/mysql-app.ctr-id --cgroups=no-conmon  --pod-id-file %t/bugsink.pod-id --replace -d --name  mysql-app  --volume my-datavolume:/var/lib/mysql:Z   --env-file mysql.env  ${MYSQL_IMAGE}  
+ExecStart=/usr/bin/podman run --conmon-pidfile %t/mysql-app.pid  --cidfile %t/mysql-app.ctr-id --cgroups=no-conmon  --pod-id-file %t/bugsink.pod-id --replace -d --name  mysql-app  --volume mysql-data:/var/lib/mysql:Z   --env-file mysql.env  ${MYSQL_IMAGE}  
 ExecStop=/usr/bin/podman stop --ignore --cidfile %t/mysql-app.ctr-id -t 10
 ExecReload=/usr/bin/podman kill -s HUP mysql-app
 SyslogIdentifier=%u

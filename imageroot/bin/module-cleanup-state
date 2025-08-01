@@ -6,4 +6,3 @@
 #
 
 rm -vf bugsink.sql
-rm -vf mysql.sql

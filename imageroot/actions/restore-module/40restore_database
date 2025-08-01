@@ -8,40 +8,9 @@
 set -e -o pipefail
 # exec 1>&2 # Redirect any output to the journal (stderr)
 #
-# # Prepare an initialization script that restores the dump file
-# mkdir -vp initdb.d
-# mv -v bugsink.sql initdb.d
-# #do the bash file to restore and exit once done
-# cat - >initdb.d/zz_bugsink_restore.sh <<'EOS'
-# # Print additional information:
-# mysql --version
-# # The script is sourced, override entrypoint args and exit:
-# set -- true
-# docker_temp_server_stop
-# exit 0
-# EOS
-#
-# # once we exit we remove initdb.d
-# trap 'rm -rfv initdb.d/' EXIT
-
-# we start a container to initiate a database and load the dump
-# at the end of bugsink_restore.sh the dump is loaded and
-# we exit the container
-# podman run \
-#   --rm \
-#   --interactive \
-#   --network=none \
-#   --volume=./initdb.d:/docker-entrypoint-initdb.d:z \
-#   --volume mysql-data:/var/lib/mysql/:Z \
-#   --env MARIADB_ROOT_PASSWORD=Nethesis,1234 \
-#   --env MARIADB_DATABASE=bugsink \
-#   --env MARIADB_USER=bugsink \
-#   --env MARIADB_PASSWORD=bugsink \
-#   --replace --name=restore_db \
-#   ${MARIADB_IMAGE}
 # Prepare an initialization script that restores the dump file
 mkdir -vp initdb.d
-mv -v mysql.sql initdb.d
+mv -v bugsink.sql initdb.d
 
 # do the bash file to restore and exit once done
 cat - >initdb.d/zz_mysql_restore.sh <<'EOS'
@@ -60,11 +29,11 @@ trap 'rm -rfv initdb.d/' EXIT
 # at the end of mysql_restore.sh the dump is loaded and
 # we exit the container
 podman run \
-  --rm \
-  --interactive \
-  --network=none \
-  --volume=./initdb.d:/docker-entrypoint-initdb.d:z \
-  --volume mysql-data:/var/lib/mysql/:Z \
-  --env-file mysql.env \
-  --replace --name=restore_db \
-  "${MYSQL_IMAGE}"
+	--rm \
+	--interactive \
+	--network=none \
+	--volume=./initdb.d:/docker-entrypoint-initdb.d:z \
+	--volume mysql-data:/var/lib/mysql/:Z \
+	--env-file mysql.env \
+	--replace --name=restore_db \
+	"${MYSQL_IMAGE}"
