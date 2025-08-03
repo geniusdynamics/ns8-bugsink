@@ -10,8 +10,8 @@
 
 [Unit]
 Description=Podman bugsink.service
-Requires=mysql-app.service bugsink-app.service 
-Before=mysql-app.service bugsink-app.service 
+Requires=mysql-app.service web-app.service 
+Before=mysql-app.service web-app.service 
 
 [Service]
 Environment=PODMAN_SYSTEMD_UNIT=%n
