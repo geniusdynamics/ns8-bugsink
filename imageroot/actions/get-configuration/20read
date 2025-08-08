@@ -18,34 +18,18 @@ import agent
 config = {}
 
 # Read current configuration from the environment file
-config["host"] = os.getenv("TRAEFIK_HOST","")
+config["host"] = os.getenv("TRAEFIK_HOST", "")
 config["http2https"] = os.getenv("TRAEFIK_HTTP2HTTPS") == "True"
 config["lets_encrypt"] = os.getenv("TRAEFIK_LETS_ENCRYPT") == "True"
 
 # Dump the configuration to stdout
 # json.dump(config, fp=sys.stdout)
-if os.path.exists("mysql.env"): 
-	data = agent.read_envfile("mysql.env") 
-	config["MYSQL_DATABASE"] = data.get("MYSQL_DATABASE", "bugsink") 
-	config["MYSQL_ROOT_PASSWORD"] = data.get("MYSQL_ROOT_PASSWORD", "change_your_passwords_for_real_usage") 
-else: 
-	config["MYSQL_ROOT_PASSWORD"] = "change_your_passwords_for_real_usage" 
-	config["MYSQL_DATABASE"] = "bugsink" 
- 
-if os.path.exists("web.env"): 
-	data = agent.read_envfile("web.env") 
-	config["SECRET_KEY"] = data.get("SECRET_KEY", "django-insecure-RMLYThim9NybWgXiUGat32Aa0Qbgqscf4NPDQuZO2glcZPOiXn") 
-	config["CREATE_SUPERUSER"] = data.get("CREATE_SUPERUSER", "admin:admin") 
-	config["PORT"] = data.get("PORT", "8000") 
-	config["DATABASE_URL"] = data.get("DATABASE_URL", "mysql://root:change_your_passwords_for_real_usage@mysql:3306/bugsink") 
-	config["BEHIND_HTTPS_PROXY"] = data.get("BEHIND_HTTPS_PROXY", "false") 
-	config["BASE_URL"] = data.get("BASE_URL", "http://localhost:8000") 
-else: 
-	config["DATABASE_URL"] = "mysql://root:change_your_passwords_for_real_usage@mysql:3306/bugsink" 
-	config["BEHIND_HTTPS_PROXY"] = "false" 
-	config["BASE_URL"] = "http://localhost:8000" 
-	config["SECRET_KEY"] = "django-insecure-RMLYThim9NybWgXiUGat32Aa0Qbgqscf4NPDQuZO2glcZPOiXn" 
-	config["CREATE_SUPERUSER"] = "admin:admin" 
-	config["PORT"] = "8000" 
- 
+
+
+if os.path.exists("web.env"):
+    data = agent.read_envfile("web.env")
+    config["CREATE_SUPERUSER"] = data.get("CREATE_SUPERUSER", "admin:admin")
+else:
+    config["CREATE_SUPERUSER"] = "admin:admin"
+
 json.dump(config, fp=sys.stdout)

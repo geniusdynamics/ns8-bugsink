@@ -12,6 +12,8 @@ import agent
 # Try to parse the stdin as JSON.
 # If parsing fails, output everything to stderr
 data = json.load(sys.stdin)
+rdb = agent.redis_connect(use_replica=True)
+smtp_settings = agent.get_smarthost_settings(rdb)
 
 host = data.get("host")
 # agent.dump_env()
@@ -25,5 +27,10 @@ web = {
     "PORT": PORT,
     "BEHIND_HTTPS_PROXY": BEHIND_HTTPS_PROXY,
     "BASE_URL": BASE_URL,
+    "EMAIL_HOST": smtp_settings["host"],
+    "EMAIL_HOST_USER": smtp_settings["username"],
+    "EMAIL_HOST_PASSWORD": smtp_settings["password"],
+    "EMAIL_PORT": smtp_settings["port"],
+    "EMAIL_USE_TLS": "True" if smtp_settings["tls_verify"] else "False",
 }
 agent.write_envfile("web.env", web)
