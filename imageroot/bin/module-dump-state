@@ -6,7 +6,7 @@
 #
 
 set -e
-source myql.env
+source mysql.env
 if ! systemctl --user -q is-active bugsink.service; then
 	exit 0
 fi
