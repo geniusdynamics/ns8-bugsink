@@ -26,6 +26,8 @@
   },
   "settings": {
     "title": "Settings",
+    "username": "Bugsink Username",
+    "password": "Bugsink password",
     "configure_instance": "Configure {instance}",
     "save": "Save",
     "bugsink_fqdn": "bugsink hostname (FQDN)",
