@@ -1,19 +1,19 @@
 {
   "name": "bugsink",
   "description": {
-    "en": "My bugsink module"
+    "en": "Self-hosted Error Tracking"
   },
-  "categories": [],
+  "categories": ["collaboration"],
   "authors": [
     {
-      "name": "Name Surname",
-      "email": "author@yourmail.org"
+      "name": "Genius Dynamics",
+      "email": "support@genius.ke"
     }
   ],
   "docs": {
-    "documentation_url": "https://docs.bugsink.com/",
-    "bug_url": "https://github.com/NethServer/dev",
-    "code_url": "https://github.com/author/ns8-bugsink"
+    "documentation_url": "https://www.bugsink.com/docs/",
+    "bug_url": "https://github.com/geniusdynamics/dev",
+    "code_url": "https://github.com/geniusdynamics/ns8-bugsink"
   },
-  "source": "ghcr.io/nethserver/bugsink"
+  "source": "ghcr.io/geniusdynamics/bugsink"
 }
