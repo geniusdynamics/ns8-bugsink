@@ -21,7 +21,7 @@ CREATE_SUPERUSER = data.get("CREATE_SUPERUSER", "admin:admin")
 PORT = data.get("PORT", "8000")
 BEHIND_HTTPS_PROXY = data.get("BEHIND_HTTPS_PROXY", "true")
 BASE_URL = f"https://{host}"
-
+TIME_ZONE = data.get("TIME_ZONE", "UTC")
 web = {
     "CREATE_SUPERUSER": CREATE_SUPERUSER,
     "PORT": PORT,
@@ -32,5 +32,6 @@ web = {
     "EMAIL_HOST_PASSWORD": smtp_settings["password"],
     "EMAIL_PORT": smtp_settings["port"],
     "EMAIL_USE_TLS": "True" if smtp_settings["tls_verify"] else "False",
+    "TIME_ZONE": TIME_ZONE,
 }
 agent.write_envfile("web.env", web)
