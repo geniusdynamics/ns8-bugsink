@@ -1,55 +1,80 @@
-# ns8-bugsink
+# Bugsink for NethServer 8 (NS8)
 
-This is a [Bugsink](https://github.com/bugsink/bugsink) module for [NethServer 8](https://github.com/NethServer/ns8-core).
-To start using it
+Self-hosted error tracking for your applications, packaged as a NethServer 8 module.
 
-## Install
+- Upstream app: https://github.com/bugsink/bugsink
+- NS8 project: https://github.com/NethServer/ns8-core
+- Container image: ghcr.io/geniusdynamics/bugsink:latest
+- Category: collaboration
 
-Instantiate the module with:
+Contents
+- Features
+- Requirements
+- Quick start
+- Configure
+- Manage (status, update, uninstall)
+- Networking and TLS
+- Smarthost autodiscovery
+- Debug and troubleshooting
+- Testing
+- Development (UI and images)
+- Internationalization
+- License
 
-    add-module ghcr.io/geniusdynamics/bugsink:latest 1
+Features
+- One-command install on NS8
+- Integrated reverse-proxy routing via Traefik
+- Optional automatic TLS with Let’s Encrypt
+- MariaDB/MySQL backend pre-wired
+- Minimal, focused UI bundled in the module
 
-The output of the command will return the instance name.
-Output example:
+Requirements
+- A running NethServer 8 cluster (node with Traefik)
+- A DNS-resolvable FQDN for the Bugsink web UI
+- Internet connectivity to pull container images
 
-    {"module_id": "bugsink1", "image_name": "bugsink", "image_url": "ghcr.io/geniusdynamics/bugsink:latest"}
+Quick start
+1) Install the module
 
-## Configure
-
-Let's assume that the bugsink instance is named `bugsink1`.
-
-Launch `configure-module`, by setting the following parameters:
-
-- `host`: a fully qualified domain name for the application
-- `http2https`: enable or disable HTTP to HTTPS redirection (true/false)
-- `lets_encrypt`: enable or disable Let's Encrypt certificate (true/false)
-
-Example:
-
+```bash
+add-module ghcr.io/geniusdynamics/bugsink:latest 1
 ```
+
+The command returns the instance name, e.g. {"module_id": "bugsink1", ...}.
+
+2) Configure the instance (replace bugsink1 with your instance)
+
+```bash
 api-cli run configure-module --agent module/bugsink1 --data - <<EOF
 {
-  "host": "bugsink.domain.com",
+  "host": "bugsink.example.com",
   "http2https": true,
-  "lets_encrypt": false
+  "lets_encrypt": true
 }
 EOF
 ```
 
-The above command will:
+This will start the instance and create the Traefik route for the given host.
 
-- start and configure the bugsink instance
-- configure a virtual host for trafik to access the instance
+Open https://bugsink.example.com to access the app.
 
-## Get the configuration
+Configure
+Parameters accepted by configure-module:
+- host: Fully Qualified Domain Name for the public endpoint
+- http2https: Force HTTP to HTTPS redirection (true/false)
+- lets_encrypt: Request a Let’s Encrypt certificate (true/false)
 
-You can retrieve the configuration with
+Read back the configuration
 
-```
+```bash
 api-cli run get-configuration --agent module/bugsink1
 ```
 
-## Update
+Manage
+Status (from the UI, navigate to the module card and open Status)
+- Shows services, images, volumes and instance metadata.
+
+Update the module to a new image
 
 ```bash
 api-cli run update-module --data '{
@@ -57,105 +82,104 @@ api-cli run update-module --data '{
   "instances": ["bugsink1"],
   "force": true
 }'
-
 ```
 
-## Uninstall
+Uninstall
 
-To uninstall the instance:
-
-    remove-module --no-preserve bugsink1
-
-## Smarthost setting discovery
-
-Some configuration settings, like the smarthost setup, are not part of the
-`configure-module` action input: they are discovered by looking at some
-Redis keys. To ensure the module is always up-to-date with the
-centralized [smarthost
-setup](https://nethserver.github.io/ns8-core/core/smarthost/) every time
-bugsink starts, the command `bin/discover-smarthost` runs and refreshes
-the `state/smarthost.env` file with fresh values from Redis.
-
-Furthermore if smarthost setup is changed when bugsink is already
-running, the event handler `events/smarthost-changed/10reload_services`
-restarts the main module service.
-
-See also the `systemd/user/bugsink.service` file.
-
-This setting discovery is just an example to understand how the module is
-expected to work: it can be rewritten or discarded completely.
-
-## Debug
-
-some CLI are needed to debug
-
-- The module runs under an agent that initiate a lot of environment variables (in /home/bugsink1/.config/state), it could be nice to verify them
-  on the root terminal
-
-      `runagent -m bugsink1 env`
-
-- you can become runagent for testing scripts and initiate all environment variables
-
-  `runagent -m bugsink1`
-
-the path become :
-
-```
-    echo $PATH
-    /home/bugsink1/.config/bin:/usr/local/agent/pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/
+```bash
+remove-module --no-preserve bugsink1
 ```
 
-- if you want to debug a container or see environment inside
-  `runagent -m bugsink1`
+Networking and TLS
+- TCP ports: The module reserves one TCP port and is published through Traefik using the host value you set at configuration time.
+- TLS: When lets_encrypt=true, a certificate is automatically requested and renewed. If false, you can manage certificates externally and point your DNS accordingly.
 
-```
-podman ps
-CONTAINER ID  IMAGE                                      COMMAND               CREATED        STATUS        PORTS                    NAMES
-d292c6ff28e9  localhost/podman-pause:4.6.1-1702418000                          9 minutes ago  Up 9 minutes  127.0.0.1:20015->80/tcp  80b8de25945f-infra
-d8df02bf6f4a  docker.io/library/mariadb:10.11.5          --character-set-s...  9 minutes ago  Up 9 minutes  127.0.0.1:20015->80/tcp  mariadb-app
-9e58e5bd676f  docker.io/library/nginx:stable-alpine3.17  nginx -g daemon o...  9 minutes ago  Up 9 minutes  127.0.0.1:20015->80/tcp  bugsink-app
-```
+Smarthost autodiscovery
+Some mail-related settings (like smarthost) are discovered dynamically from the NS8 cluster and are not part of the configure-module payload.
+- On each start, bin/discover-smarthost refreshes state/smarthost.env from Redis
+- If the centralized smarthost configuration changes while the module is running, the handler events/smarthost-changed/10reload_services restarts the main service
+See also systemd/user/bugsink.service.
 
-you can see what environment variable is inside the container
+Debug and troubleshooting
+Run as the module agent to get the correct environment (state is under /home/<instance>/.config/state):
 
-```
-podman exec  bugsink-app env
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-TERM=xterm
-PKG_RELEASE=1
-MARIADB_DB_HOST=127.0.0.1
-MARIADB_DB_NAME=bugsink
-MARIADB_IMAGE=docker.io/mariadb:10.11.5
-MARIADB_DB_TYPE=mysql
-container=podman
-NGINX_VERSION=1.24.0
-NJS_VERSION=0.7.12
-MARIADB_DB_USER=bugsink
-MARIADB_DB_PASSWORD=bugsink
-MARIADB_DB_PORT=3306
-HOME=/root
+- Print environment
+
+```bash
+runagent -m bugsink1 env
 ```
 
-you can run a shell inside the container
+- Enter an agent shell and verify PATH
 
+```bash
+runagent -m bugsink1
 ```
-podman exec -ti   bugsink-app sh
-/ #
+
+```bash
+echo $PATH
 ```
 
-## Testing
+Inspect containers
 
-Test the module using the `test-module.sh` script:
+- List containers
 
-    ./test-module.sh <NODE_ADDR> ghcr.io/nethserver/bugsink:latest
+```bash
+podman ps --format "table {{.ID}}\t{{.Image}}\t{{.Names}}\t{{.Ports}}\t{{.Status}}"
+```
 
-The tests are made using [Robot Framework](https://robotframework.org/)
+- Inspect environment of the app container
 
-## UI translation
+```bash
+podman exec bugsink-app env
+```
 
-Translated with [Weblate](https://hosted.weblate.org/projects/ns8/).
+- Open a shell inside the app container
 
-To setup the translation process:
+```bash
+podman exec -ti bugsink-app sh
+```
 
-- add [GitHub Weblate app](https://docs.weblate.org/en/latest/admin/continuous.html#github-setup) to your repository
-- add your repository to [hosted.weblate.org]((https://hosted.weblate.org) or ask a NethServer developer to add it to ns8 Weblate project
+Expected database-related environment inside the app container (values can vary):
+- MARIADB_DB_HOST=127.0.0.1
+- MARIADB_DB_PORT=3306
+- MARIADB_DB_NAME=bugsink
+- MARIADB_DB_USER=bugsink
+- MARIADB_DB_PASSWORD=bugsink
+
+Testing
+Robot Framework tests are provided. You can use the helper script:
+
+```bash
+./test-module.sh <NODE_ADDR> ghcr.io/geniusdynamics/bugsink:latest
+```
+
+Development
+Container images
+- The build script builds the UI and assembles the module image:
+
+```bash
+./build-images.sh
+```
+
+Notes:
+- UI is built with Node LTS (yarn build) and copied into the image
+- The image carries labels for NS8 (authorizations, tcp port demand, rootless)
+- External images used by the module include:
+  - docker.io/mysql:9.4.0
+  - docker.io/bugsink/bugsink:1.7.6
+- Images are committed as ghcr.io/geniusdynamics/bugsink:latest by default
+
+UI development
+See ui/README.md for the NS8 UI development workflow and refer to the NS8 Developer manual: https://nethserver.github.io/ns8-core/ui/modules/#module-ui-development
+
+Module metadata
+See ui/public/metadata.json for name, description, author and links displayed in the NS8 UI.
+
+Internationalization
+UI strings are translated with Weblate: https://hosted.weblate.org/projects/ns8/
+To set up translation:
+- Add the GitHub Weblate app to your repository
+- Add your repository to hosted.weblate.org (or ask a NethServer developer to include it in the NS8 Weblate project)
+
+License
+This project is released under the GPL-3.0-or-later license. See LICENSE for details.
