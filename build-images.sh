@@ -45,7 +45,7 @@ buildah config --entrypoint=/ \
 	--label="org.nethserver.authorizations=traefik@node:routeadm" \
 	--label="org.nethserver.tcp-ports-demand=1" \
 	--label="org.nethserver.rootfull=0" \
-	--label="org.nethserver.images=docker.io/mysql:9.4.0 docker.io/bugsink/bugsink:1.7.6" \
+	--label="org.nethserver.images=docker.io/mysql:9.4.0 docker.io/bugsink/bugsink:2.2.2" \
 	"${container}"
 # Commit the image
 buildah commit "${container}" "${repobase}/${reponame}"
