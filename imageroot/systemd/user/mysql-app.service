@@ -14,6 +14,7 @@ EnvironmentFile=%S/state/environment
 EnvironmentFile=-%S/state/smarthost.env
 WorkingDirectory=%S/state
 Restart=always
+RestartSec=10
 TimeoutStopSec=70
 ExecStartPre=/bin/mkdir -p tmp
 ExecStartPre=/bin/rm -f %t/mysql-app.pid %t/mysql-app.ctr-id

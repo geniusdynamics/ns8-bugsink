@@ -17,6 +17,10 @@ reponame="bugsink"
 # Node.js 25+ no longer ships Corepack, install it from npm
 # renovate: datasource=npm packageName=corepack
 corepack_version=0.36.0
+# renovate: datasource=docker packageName=docker.io/mysql
+MYSQL_VERSION=9.7.4
+# renovate: datasource=docker packageName=docker.io/bugsink/bugsink
+BUGSINK_VERSION=2.6.3
 
 # Create a new empty container image
 container=$(buildah from scratch)
@@ -50,7 +54,7 @@ buildah config --entrypoint=/ \
 	--label="org.nethserver.tcp-ports-demand=1" \
 	--label="org.nethserver.rootfull=0" \
     --label="org.nethserver.min-core=3.0.0" \
-	--label="org.nethserver.images=docker.io/mysql:9.4.0 docker.io/bugsink/bugsink:2.6.3" \
+	--label="org.nethserver.images=docker.io/mysql:${MYSQL_VERSION} docker.io/bugsink/bugsink:${BUGSINK_VERSION}" \
 	"${container}"
 # Commit the image
 buildah commit "${container}" "${repobase}/${reponame}"

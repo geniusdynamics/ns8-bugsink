@@ -34,12 +34,14 @@ mysql = {
     "MYSQL_DATABASE": MYSQL_DATABASE,
 }
 agent.write_envfile("mysql.env", mysql)
+os.chmod("mysql.env", 0o600)
 
 SECRET_KEY = generate_random_password(64)
-DATABASE_URL = f"mysql://root:{MYSQL_ROOT_PASSWORD}@mysql-app:3306/bugsink"
+DATABASE_URL = f"mysql://root:{MYSQL_ROOT_PASSWORD}@127.0.0.1:3306/bugsink"
 
 bugsink = {
     "DATABASE_URL": DATABASE_URL,
     "SECRET_KEY": SECRET_KEY,
 }
 agent.write_envfile("bugsink_db.env", bugsink)
+os.chmod("bugsink_db.env", 0o600)
